@@ -1,13 +1,12 @@
 import vk_api
 
 
-def fetch_all_friends(vk_session, user_id):
+def fetch_friends(vk_session, user_id):
     vk = vk_session.get_api()
-
     return vk.friends.get(user_id=user_id, count=5000, fields='sex,bdate,education')['items']
 
 
-def fetch_all_friends_of_friends(vk_session, friends):
+def fetch_friends_of_friends(vk_session, friends):
     user_vk_handles = dict()
     with vk_api.VkRequestsPool(vk_session) as pool:
         for friend in friends:
@@ -21,3 +20,8 @@ def fetch_all_friends_of_friends(vk_session, friends):
             friends_of_friends.append(handle.result)
 
     return friends_of_friends
+
+
+def fetch_subscriptions(vk_session, user_id):
+    vk = vk_session.get_api()
+    return vk.groups.get(user_id=user_id, fields='description', extended=True, count=1000)['items']

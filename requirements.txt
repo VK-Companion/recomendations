@@ -1,5 +1,8 @@
+transliterate
 numpy
 scikit-learn
 tqdm
 pymorphy2
 scipy
+gensim
+nltk

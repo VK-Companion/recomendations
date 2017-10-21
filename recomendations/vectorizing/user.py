@@ -3,17 +3,21 @@ import datetime
 import numpy as np
 
 from recomendations.vectorizing.faculty_name import faculty_name_vector, load_default_faculty_name_vectorizers
+from recomendations.vectorizing.subscriptions import load_default_subscription_vectorizers, subscriptions_vector
 
-_count_vectorizer = None
-_pca_vectorizer = None
+_education_count_vectorizer = None
+_education_pca_vectorizer = None
+_subscriptions_lda_vectorizer = None
+_subscriptions_tfidf_vectorizer = None
+_subscriptions_dictionary = None
 
 
-def user_vector(user):
+def user_vector(user, subscriptions):
     arr = []
     arr.extend(_sex_user_vec_part(user))
     arr.extend(_bdate_user_vec_part(user))
     arr.extend(_education_user_vec_part(user))
-
+    arr.extend(_subscriptions_user_vec_part(subscriptions))
     return np.array(arr)
 
 
@@ -31,20 +35,32 @@ def _bdate_user_vec_part(user):
     else:
         age = None
 
-    is_age_between_10_and_15_prob = int(10 <= age <= 15) if age is not None else 0
-    is_age_between_16_and_20_prob = int(16 <= age <= 15) if age is not None else 0
-    is_age_between_21_and_25_prob = int(21 <= age <= 25) if age is not None else 0
-    is_age_between_26_and_30_prob = int(26 <= age <= 30) if age is not None else 0
-    is_age_between_31_and_35_prob = int(31 <= age <= 35) if age is not None else 0
-    is_age_between_36_and_inf_prob = int(36 <= age) if age is not None else 0
+    is_age_between_10_and_15 = int(10 <= age <= 15) if age is not None else 0
+    is_age_between_16_and_20 = int(16 <= age <= 15) if age is not None else 0
+    is_age_between_21_and_25 = int(21 <= age <= 25) if age is not None else 0
+    is_age_between_26_and_30 = int(26 <= age <= 30) if age is not None else 0
+    is_age_between_31_and_35 = int(31 <= age <= 35) if age is not None else 0
+    is_age_between_36_and_inf = int(36 <= age) if age is not None else 0
 
-    return [is_age_between_10_and_15_prob, is_age_between_16_and_20_prob, is_age_between_21_and_25_prob,
-            is_age_between_26_and_30_prob, is_age_between_31_and_35_prob, is_age_between_36_and_inf_prob]
+    return [is_age_between_10_and_15, is_age_between_16_and_20, is_age_between_21_and_25,
+            is_age_between_26_and_30, is_age_between_31_and_35, is_age_between_36_and_inf]
+
 
 def _education_user_vec_part(user):
-    global _count_vectorizer, _pca_vectorizer
-    if _count_vectorizer is None and _pca_vectorizer is None:
-        _count_vectorizer, _pca_vectorizer = load_default_faculty_name_vectorizers()
+    global _education_count_vectorizer, _education_pca_vectorizer
+    if _education_count_vectorizer is None and _education_pca_vectorizer is None:
+        _education_count_vectorizer, _education_pca_vectorizer = load_default_faculty_name_vectorizers()
 
     return faculty_name_vector(user.get('university_name', ''), user.get('faculty_name', ''),
-                               _count_vectorizer, _pca_vectorizer)
+                               _education_count_vectorizer, _education_pca_vectorizer)
+
+
+def _subscriptions_user_vec_part(subscriptions):
+    global _subscriptions_lda_vectorizer, _subscriptions_tfidf_vectorizer, _subscriptions_dictionary
+    if _subscriptions_lda_vectorizer is None and _subscriptions_tfidf_vectorizer is None and _subscriptions_dictionary is None:
+        _subscriptions_lda_vectorizer, _subscriptions_tfidf_vectorizer, _subscriptions_dictionary = load_default_subscription_vectorizers()
+
+    sub_descriptions = ['{} {}'.format(sub.get('name', ''), sub.get('description', '')) for sub in subscriptions]
+
+    return subscriptions_vector(sub_descriptions,
+                                _subscriptions_lda_vectorizer, _subscriptions_tfidf_vectorizer, _subscriptions_dictionary)
