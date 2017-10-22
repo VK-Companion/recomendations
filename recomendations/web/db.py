@@ -7,7 +7,7 @@ from pymongo import MongoClient
 class DbCache:
     def __init__(self):
         self._events = None
-        self.events_ldas = None
+        self._events_ldas = None
 
     def get_user_lda(self, vk_token):
         mongodb = MongoClient()
