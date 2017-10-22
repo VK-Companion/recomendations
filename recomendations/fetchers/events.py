@@ -36,11 +36,14 @@ def fetch_events_walls(vk_session, events, verbose=False):
     if verbose:
         events = tqdm(events)
     for event in events:
-        wall = vk.wall.get(owner_id=-int(event['id']), filter='owner', count=100)['items']
-        texts[event['id']] = []
-        for post in wall:
-            texts[event['id']].append(post.get('text', ''))
-            texts[event['id']].append(post.get('copy_history', [{}])[0].get('text', ''))
+        try:
+            wall = vk.wall.get(owner_id=-int(event['id']), filter='owner', count=100)['items']
+            texts[event['id']] = []
+            for post in wall:
+                texts[event['id']].append(post.get('text', ''))
+                texts[event['id']].append(post.get('copy_history', [{}])[0].get('text', ''))
+        except:
+            pass
 
     return texts
 
