@@ -1,4 +1,3 @@
-import re
 import pickle
 from pathlib import Path
 
@@ -7,10 +6,14 @@ import numpy as np
 from gensim.corpora import Dictionary
 from gensim.models import LdaMulticore, TfidfModel
 from nltk import ToktokTokenizer
-from transliterate import translit
+from nltk.stem.snowball import SnowballStemmer
 
+from recomendations.utils_nlp import get_stopwords
+
+_alphabet = 'йцукенгшщзхъфывапролджэёячсмитьбю'
 _morph = pymorphy2.analyzer.MorphAnalyzer()
-_alphabet = 'qwertyuiopasdfghjklzxcvbnmйцукенгшщзхъфывапролджэёячсмитьбю'
+_stemmer = SnowballStemmer('russian')
+_stopwords = get_stopwords()
 
 
 def subscriptions_vector(group_descriptions, lda_vectorizer, tfidf_vectorizer, dictionary):
@@ -42,7 +45,7 @@ def create_subscription_vectorizers(group_descriptions):
     tfidf_vectorizer = TfidfModel(corpora_bow)
     corpora_tfidf = tfidf_vectorizer[corpora_bow]
 
-    lda_vectorizer = LdaMulticore(num_topics=500, corpus=corpora_tfidf, id2word=dictionary, workers=39)
+    lda_vectorizer = LdaMulticore(num_topics=50, corpus=corpora_tfidf, id2word=dictionary)
 
     return lda_vectorizer, tfidf_vectorizer, dictionary
 
@@ -65,11 +68,12 @@ def load_default_subscription_vectorizers():
 
 def _normalize_text(s):
     s = s.lower()
-    s = re.sub('https?://(-\\.)?([^\\s/?\\.#-]+\\.?)+(/[^\\s\\.]*)?', '', s)
-    s = re.sub('\\b[A-Za-z0-9\\._%+-]+@[A-Za-z0-9\\.-]+\\.[A-Za-z]{2,16}\\b', '', s)
-    s = ''.join([c if c in _alphabet else ' ' for c in s])
-    s = translit(s, 'ru')
+    s = ''.join(c if c in _alphabet else ' ' for c in s)
+    s = ' '.join(word for word in s.split(' ') if word not in _stopwords)
     s = ' '.join(_morph.parse(word)[0].normal_form for word in s.split(' ') if word != '')
+    s = ' '.join(word for word in s.split(' ') if word not in _stopwords)
+    s = ' '.join(_stemmer.stem(word) for word in s.split(' ') if word != '')
+    s = ' '.join(word for word in s.split(' ') if word not in _stopwords)
     return s
 
 
