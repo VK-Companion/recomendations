@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Usage: ./recomendations/web/cli
+
+PYTHONPATH=. FLASK_APP=recomendations/app.py python3 -m flask run --host=0.0.0.0
