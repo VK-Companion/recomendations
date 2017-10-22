@@ -45,9 +45,9 @@ class DbCache:
             '_id': user['id'],
             'first_name': user['first_name'],
             'last_name': user['last_name'],
-            'sex': user['sex'],
-            'bdate': user['bdate'],
-            'education': user['education'],
+            'sex': user.get('sex', None),
+            'bdate': user.get('bdate', None),
+            'education': user.get('education', None),
             'done': False
         })
 

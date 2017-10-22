@@ -170,6 +170,5 @@ venv.bak/
 
 
 .idea/
-/*.ipynb
 /resources
 !/resources/stopwords
