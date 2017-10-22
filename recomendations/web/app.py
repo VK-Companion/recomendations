@@ -32,13 +32,14 @@ def companion_recomendations(vk_token, event_id):
     return sorted(sugg, key=lambda it: -it[1])
 
 
-@app.route('/register', methods=['POST'])
-def register():
-    raise NotImplementedError
+@app.route('/register/<vk_token>')
+def register(vk_token):
+    db_cache.new_user(vk_token)
+    return {'ok': True}
 
 
-@app.route('/register_progress')
-def register_progress():
-    raise NotImplementedError
+@app.route('/register_progress/<vk_token>')
+def register_progress(vk_token):
+    return {'done': db_cache.get_user_progress(vk_token)}
 
 

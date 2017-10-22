@@ -8,3 +8,4 @@ scipy
 gensim
 nltk
 pymongo
+git+git://github.com/albertbup/deep-belief-network.git

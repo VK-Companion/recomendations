@@ -33,7 +33,7 @@ def subscriptions_vector(group_descriptions, lda_vectorizer, tfidf_vectorizer, d
         if result is None:
             result = vec
         else:
-            result = np.sum(result, vec)
+            result = result + vec
     return result
 
 
